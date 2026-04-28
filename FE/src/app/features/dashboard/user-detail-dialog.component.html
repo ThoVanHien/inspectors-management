@@ -1,0 +1,259 @@
+<header class="dialog-header">
+  <div>
+    <span>User Detail</span>
+    <h2>{{ data.employee.name }}</h2>
+    <p>Exam and certificate records for {{ data.employee.idUser }}</p>
+  </div>
+
+  <button
+    mat-icon-button
+    type="button"
+    aria-label="Close user detail dialog"
+    (click)="close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</header>
+
+<mat-dialog-content>
+  <div class="user-summary">
+    <div>
+      <span>idUser</span>
+      <strong>{{ data.employee.idUser }}</strong>
+    </div>
+    <div>
+      <span>Name</span>
+      <strong>{{ data.employee.name }}</strong>
+    </div>
+    <div>
+      <span>Team</span>
+      <strong>{{ data.employee.team }}</strong>
+    </div>
+    <div>
+      <span>Part</span>
+      <strong>{{ data.employee.part }}</strong>
+    </div>
+    <div>
+      <span>Last Certificate</span>
+      <strong>{{ formatDate(data.employee.lastCertificate) }}</strong>
+    </div>
+    <div>
+      <span>Next Certificate Date</span>
+      <strong>{{ formatDate(data.employee.nextCertificateDate) }}</strong>
+    </div>
+    <div>
+      <span>Status</span>
+      <strong>
+        <span
+          class="status-pill"
+          [class]="getStatusClass(data.employee.status)"
+        >
+          {{ data.employee.status }}
+        </span>
+      </strong>
+    </div>
+    <div>
+      <span>Remaining Date</span>
+      <strong>{{ formatRemainingDate(data.employee.remainingDate) }}</strong>
+    </div>
+  </div>
+
+  <div class="result-table-wrap">
+    <table mat-table [dataSource]="pagedResults">
+      <ng-container matColumnDef="examCode">
+        <th mat-header-cell *matHeaderCellDef>Exam Code</th>
+        <td mat-cell *matCellDef="let result">
+          <ng-container *ngIf="isEditing(result); else examCodeView">
+            <input class="inline-input" [(ngModel)]="result.examCode" />
+          </ng-container>
+          <ng-template #examCodeView>{{ result.examCode }}</ng-template>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="examName">
+        <th mat-header-cell *matHeaderCellDef>Exam Name</th>
+        <td mat-cell *matCellDef="let result">
+          <ng-container *ngIf="isEditing(result); else examNameView">
+            <input class="inline-input" [(ngModel)]="result.examName" />
+          </ng-container>
+          <ng-template #examNameView>{{ result.examName }}</ng-template>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="examDate">
+        <th mat-header-cell *matHeaderCellDef>Exam Date</th>
+        <td mat-cell *matCellDef="let result">
+          <ng-container *ngIf="isEditing(result); else examDateView">
+            <input
+              class="inline-input"
+              type="date"
+              [ngModel]="toDateInputValue(result.examDate)"
+              (ngModelChange)="updateExamDate(result, $event)"
+            />
+          </ng-container>
+          <ng-template #examDateView>{{
+            formatDate(result.examDate)
+          }}</ng-template>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="score">
+        <th mat-header-cell *matHeaderCellDef>Score</th>
+        <td mat-cell *matCellDef="let result">
+          <ng-container *ngIf="isEditing(result); else scoreView">
+            <input
+              class="inline-input score-input"
+              type="number"
+              min="0"
+              max="100"
+              [(ngModel)]="result.score"
+            />
+          </ng-container>
+          <ng-template #scoreView>{{ result.score }}</ng-template>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="result">
+        <th mat-header-cell *matHeaderCellDef>Result</th>
+        <td mat-cell *matCellDef="let result">
+          <ng-container *ngIf="isEditing(result); else resultView">
+            <select class="inline-input" [(ngModel)]="result.result">
+              <option value="Passed">Passed</option>
+              <option value="Failed">Failed</option>
+            </select>
+          </ng-container>
+          <ng-template #resultView>
+            <span class="status-pill" [class]="getStatusClass(result.result)">{{
+              result.result
+            }}</span>
+          </ng-template>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="certificateCode">
+        <th mat-header-cell *matHeaderCellDef>Certificate Code</th>
+        <td mat-cell *matCellDef="let result">{{ result.certificateCode }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="certificateName">
+        <th mat-header-cell *matHeaderCellDef>Certificate Name</th>
+        <td mat-cell *matCellDef="let result">{{ result.certificateName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="issuedDate">
+        <th mat-header-cell *matHeaderCellDef>Issued Date</th>
+        <td mat-cell *matCellDef="let result">
+          {{ result.issuedDate ? formatDate(result.issuedDate) : "-" }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="certificateStatus">
+        <th mat-header-cell *matHeaderCellDef>Certificate Status</th>
+        <td mat-cell *matCellDef="let result">
+          <span
+            class="status-pill"
+            [class]="getStatusClass(result.certificateStatus)"
+          >
+            {{ result.certificateStatus }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="examFile">
+        <th mat-header-cell *matHeaderCellDef>Exam File</th>
+        <td mat-cell *matCellDef="let result">
+          <div class="file-cell">
+            <span class="file-name">{{ result.examPdfName || '-' }}</span>
+            <label class="upload-action">
+              <input
+                type="file"
+                accept="application/pdf"
+                (change)="uploadPdf(result, 'exam', $event)"
+              />
+              <mat-icon>upload_file</mat-icon>
+              Upload
+            </label>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="certificateFile">
+        <th mat-header-cell *matHeaderCellDef>Certificate File</th>
+        <td mat-cell *matCellDef="let result">
+          <div class="file-cell">
+            <span class="file-name">{{ result.certificatePdfName || '-' }}</span>
+            <label class="upload-action">
+              <input
+                type="file"
+                accept="application/pdf"
+                (change)="uploadPdf(result, 'certificate', $event)"
+              />
+              <mat-icon>workspace_premium</mat-icon>
+              Upload
+            </label>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let result">
+          <div class="row-actions" *ngIf="!isEditing(result)">
+            <button
+              mat-icon-button
+              type="button"
+              aria-label="Edit exam information"
+              matTooltip="Edit exam information"
+              (click)="editResult(result)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button
+              mat-icon-button
+              type="button"
+              class="delete-action"
+              aria-label="Delete exam result"
+              matTooltip="Delete exam result"
+              (click)="deleteResult(result)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <div class="row-actions" *ngIf="isEditing(result)">
+            <button
+              mat-icon-button
+              type="button"
+              aria-label="Finish editing exam information"
+              (click)="finishEdit()"
+            >
+              <mat-icon>done</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="resultColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: resultColumns"></tr>
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell no-data-cell" [attr.colspan]="resultColumns.length">
+          No exam results found.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator
+    [length]="data.results.length"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [pageSizeOptions]="pageSizeOptions"
+    showFirstLastButtons
+    (page)="onResultPageChange($event)"
+  ></mat-paginator>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="close()">Close</button>
+</mat-dialog-actions>

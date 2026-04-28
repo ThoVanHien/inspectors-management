@@ -1,0 +1,77 @@
+<mat-sidenav-container class="app-shell">
+  <mat-sidenav mode="side" opened class="app-sidebar">
+    <a class="brand" routerLink="/" aria-label="Inspector Management dashboard">
+      <span class="brand-mark">IM</span>
+      <span>
+        <strong>Inspector</strong>
+        <small>Management</small>
+      </span>
+    </a>
+
+    <nav class="nav-list" aria-label="Primary navigation">
+      <a
+        *ngFor="let item of navItems"
+        class="nav-link"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <section class="sidebar-panel" aria-label="Operations history summary">
+      <h3>Operations History</h3>
+      <div class="operation-dropdown-list">
+        <details
+          class="operation-dropdown"
+          *ngFor="let group of operationGroups"
+        >
+          <summary>
+            <span>{{ group.label }}</span>
+            <strong>{{ group.value }}</strong>
+          </summary>
+          <ul>
+            <li *ngFor="let detail of group.details">{{ detail }}</li>
+          </ul>
+        </details>
+      </div>
+    </section>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="app-toolbar">
+      <div class="toolbar-title">
+        <span>Exam & Certificate Operations</span>
+        <small
+          >Structured, content-first workflow for internal inspectors</small
+        >
+      </div>
+
+      <span class="toolbar-spacer"></span>
+
+      <button
+        mat-icon-button
+        type="button"
+        class="theme-button"
+        matTooltip="Toggle light or dark theme"
+        aria-label="Toggle light or dark theme"
+        (click)="toggleTheme()"
+      >
+        <mat-icon>{{
+          themeService.mode === "dark" ? "light_mode" : "dark_mode"
+        }}</mat-icon>
+      </button>
+
+      <a mat-flat-button color="primary" routerLink="/login" class="login-link">
+        <mat-icon>login</mat-icon>
+        Login
+      </a>
+    </mat-toolbar>
+
+    <main class="app-main">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

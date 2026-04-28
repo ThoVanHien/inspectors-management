@@ -1,0 +1,35 @@
+<section class="login-page">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>Inspector Login</mat-card-title>
+      <mat-card-subtitle>Use your employee account to continue</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="signIn()">
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" autocomplete="username">
+          <mat-error *ngIf="form.controls.username.hasError('required')">Username is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="current-password">
+          <mat-error *ngIf="form.controls.password.hasError('required')">Password is required</mat-error>
+        </mat-form-field>
+
+        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+        <button mat-flat-button 
+                color="primary"
+                type="submit" 
+                [disabled]="form.invalid || isSubmitting"
+                class="login-submit-btn">
+          <mat-icon>login</mat-icon>
+          {{ isSubmitting ? 'Signing in' : 'Sign in' }}
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</section>

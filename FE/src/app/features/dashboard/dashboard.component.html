@@ -1,0 +1,308 @@
+<section class="dashboard">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Inspector Management</span>
+      <h1>Admin Dashboard</h1>
+    </div>
+  </header>
+
+  <div class="stats-grid">
+    <mat-card *ngFor="let stat of stats" class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>{{ stat.icon }}</mat-icon>
+        </div>
+        <span>{{ stat.label }}</span>
+        <strong>{{ stat.value }}</strong>
+        <small>{{ stat.delta }}</small>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="panel">
+    <mat-card-header>
+      <mat-card-title> Search Form </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form class="filter-form" (submit)="$event.preventDefault()">
+        <label>
+          <span>Keyword</span>
+          <input
+            matInput
+            type="text"
+            placeholder="Search idUser or name"
+            [(ngModel)]="filters.keyword"
+            (ngModelChange)="onFilterChange()"
+            name="keywordFilter"
+          />
+        </label>
+
+        <label>
+          <span>Team</span>
+          <select
+            [(ngModel)]="filters.team"
+            (ngModelChange)="onFilterChange()"
+            name="teamFilter"
+          >
+            <option *ngFor="let team of teams" [value]="team">
+              {{ team }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Part</span>
+          <select
+            [(ngModel)]="filters.part"
+            (ngModelChange)="onFilterChange()"
+            name="partFilter"
+          >
+            <option *ngFor="let part of parts" [value]="part">
+              {{ part }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          <span>Status</span>
+          <select
+            [(ngModel)]="filters.status"
+            (ngModelChange)="onFilterChange()"
+            name="statusFilter"
+          >
+            <option *ngFor="let status of statuses" [value]="status">
+              {{ status }}
+            </option>
+          </select>
+        </label>
+
+        <button mat-stroked-button type="button" (click)="clearFilters()">
+          Clear
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="panel employee-panel">
+    <mat-card-header>
+      <mat-card-title>Employee Certificate Overview</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="overview-actions">
+        <button
+          mat-stroked-button
+          type="button"
+          class="action-btn"
+          (click)="toggleAddUserForm()"
+        >
+          <mat-icon>person_add</mat-icon>
+        </button>
+
+        <button
+          mat-stroked-button
+          type="button"
+          class="action-btn icon-only"
+          matTooltip="Export to Excel"
+          aria-label="Export to Excel"
+          (click)="exportExcel()"
+        >
+          <mat-icon>table_view</mat-icon>
+        </button>
+
+        <button
+          mat-stroked-button
+          type="button"
+          class="action-btn"
+          (click)="toggleSelectMode()"
+        >
+          <mat-icon>{{ isSelectMode ? "close" : "checklist" }}</mat-icon>
+        </button>
+
+        <button
+          mat-stroked-button
+          type="button"
+          class="action-btn"
+          [disabled]="selectedCount === 0"
+          (click)="deleteSelectedUsers()"
+        >
+          <mat-icon>delete</mat-icon>
+          {{ selectedCount > 0 ? " (" + selectedCount + ")" : "" }}
+        </button>
+      </div>
+
+      <form
+        class="add-user-form"
+        *ngIf="showAddUserForm"
+        (submit)="$event.preventDefault()"
+      >
+        <label>
+          <span>idUser</span>
+          <input
+            type="text"
+            [(ngModel)]="newUserForm.idUser"
+            name="newIdUser"
+            placeholder="new.user"
+          />
+        </label>
+        <label>
+          <span>Name</span>
+          <input
+            type="text"
+            [(ngModel)]="newUserForm.name"
+            name="newName"
+            placeholder="Nguyen Van A"
+          />
+        </label>
+        <label>
+          <span>Team</span>
+          <input
+            type="text"
+            [(ngModel)]="newUserForm.team"
+            name="newTeam"
+            placeholder="DA"
+          />
+        </label>
+        <label>
+          <span>Part</span>
+          <input
+            type="text"
+            [(ngModel)]="newUserForm.part"
+            name="newPart"
+            placeholder="Mobile SW"
+          />
+        </label>
+        <label>
+          <span>Last Certificate</span>
+          <input
+            type="date"
+            [(ngModel)]="newUserForm.lastCertificate"
+            name="newLastCertificate"
+          />
+        </label>
+        <div class="form-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            (click)="addUser()"
+          >
+            Save
+          </button>
+          <button mat-button type="button" (click)="toggleAddUserForm()">
+            Cancel
+          </button>
+        </div>
+      </form>
+
+      <table mat-table [dataSource]="pagedEmployeeCertificateRows">
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <input
+              type="checkbox"
+              [checked]="areAllVisibleSelected"
+              (change)="onSelectAllChange($event)"
+              aria-label="Select all visible rows"
+            />
+          </th>
+          <td mat-cell *matCellDef="let employee">
+            <input
+              type="checkbox"
+              [checked]="selectedUserIds.has(employee.idUser)"
+              (click)="$event.stopPropagation()"
+              (change)="onRowCheckboxChange(employee, $event)"
+              [attr.aria-label]="'Select user ' + employee.idUser"
+            />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="no">
+          <th mat-header-cell *matHeaderCellDef>No</th>
+          <td mat-cell *matCellDef="let employee">{{ employee.no }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="idUser">
+          <th mat-header-cell *matHeaderCellDef>idUser</th>
+          <td mat-cell *matCellDef="let employee">{{ employee.idUser }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let employee">{{ employee.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="team">
+          <th mat-header-cell *matHeaderCellDef>Team</th>
+          <td mat-cell *matCellDef="let employee">{{ employee.team }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="part">
+          <th mat-header-cell *matHeaderCellDef>Part</th>
+          <td mat-cell *matCellDef="let employee">{{ employee.part }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="nextCertificateDate">
+          <th mat-header-cell *matHeaderCellDef>Next Certificate Date</th>
+          <td mat-cell *matCellDef="let employee">
+            {{ formatDate(employee.nextCertificateDate) }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="lastCertificate">
+          <th mat-header-cell *matHeaderCellDef>Last Certificate</th>
+          <td mat-cell *matCellDef="let employee">
+            {{ formatDate(employee.lastCertificate) }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let employee">
+            <span
+              class="status-pill"
+              [class]="getStatusClass(employee.status)"
+              >{{ employee.status }}</span
+            >
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="remainingDate">
+          <th mat-header-cell *matHeaderCellDef>Remaining Date</th>
+          <td mat-cell *matCellDef="let employee">
+            {{ formatRemainingDate(employee.remainingDate) }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="employee-row"
+          [class.select-mode]="isSelectMode"
+          [class.selected-row]="selectedUserIds.has(row.idUser)"
+          tabindex="0"
+          (click)="selectEmployee(row)"
+          (keydown.enter)="selectEmployee(row)"
+          (keydown.space)="selectEmployee(row)"
+        ></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td
+            class="mat-cell no-data-cell"
+            [attr.colspan]="displayedColumns.length"
+          >
+            No employees match the current filters.
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator
+        [length]="filteredEmployeeCertificateRows.length"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="pageSizeOptions"
+        showFirstLastButtons
+        (page)="onEmployeePageChange($event)"
+      ></mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</section>

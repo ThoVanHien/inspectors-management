@@ -1,0 +1,142 @@
+<section class="exam-editor">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Exam Builder</span>
+      <h1>{{ editingExamId ? 'Edit Multiple Choice Exam' : 'Create Multiple Choice Exam' }}</h1>
+      <p>Create A/B/C/D exams with optional image uploads for questions and answers.</p>
+    </div>
+
+    <a mat-stroked-button routerLink="/exams">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Exams
+    </a>
+  </header>
+
+  <mat-card class="panel">
+    <mat-card-header>
+      <mat-card-title>Exam Information</mat-card-title>
+      <mat-card-subtitle>Basic settings for the exam</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content class="exam-form">
+      <label>
+        <span>Exam Code</span>
+        <input type="text" [(ngModel)]="exam.code" name="examCode" placeholder="EX-001">
+      </label>
+
+      <label>
+        <span>Exam Name</span>
+        <input type="text" [(ngModel)]="exam.name" name="examName" placeholder="Line Inspection Basics">
+      </label>
+
+      <label>
+        <span>Duration (minutes)</span>
+        <input type="number" min="1" [(ngModel)]="exam.durationMinutes" name="durationMinutes">
+      </label>
+
+      <label class="full-row">
+        <span>Description</span>
+        <textarea rows="3" [(ngModel)]="exam.description" name="examDescription" placeholder="Exam scope and instructions"></textarea>
+      </label>
+    </mat-card-content>
+  </mat-card>
+
+  <section class="question-list">
+    <div class="question-list-header">
+      <strong>Total Questions: {{ questions.length }}</strong>
+      <button mat-stroked-button type="button" (click)="addQuestion()">Add Question</button>
+    </div>
+
+    <mat-card class="panel question-card" *ngFor="let question of questions; let i = index; trackBy: trackByQuestionId">
+      <mat-card-header>
+        <mat-card-title>Question {{ i + 1 }}</mat-card-title>
+        <button mat-stroked-button type="button" (click)="removeQuestion(i)" [disabled]="questions.length === 1">
+          Remove
+        </button>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="question-main">
+          <label class="editor-field">
+            <span>Question Content</span>
+            <div class="input-with-tools">
+              <textarea rows="3" [(ngModel)]="question.text" [name]="'questionText' + question.id" placeholder="Enter question"></textarea>
+              <label class="upload-icon-button" [matTooltip]="'Upload question image'">
+                <input type="file" accept="image/*" (change)="onQuestionImageChange(question, $event)">
+                <mat-icon>add_photo_alternate</mat-icon>
+              </label>
+            </div>
+          </label>
+
+          <div class="image-preview compact" *ngIf="question.imageDataUrl">
+            <img [src]="question.imageDataUrl" [alt]="question.imageName || 'Question image'">
+            <div class="preview-meta">
+              <small>{{ question.imageName }}</small>
+              <button
+                mat-button
+                type="button"
+                (click)="clearQuestionImage(question)"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="answer-grid">
+          <article class="answer-card" *ngFor="let option of question.options">
+            <header>
+              <strong>{{ option.key }}</strong>
+              <label class="correct-mark">
+                <span>Correct</span>
+                <input
+                  type="radio"
+                  [name]="'correctOption' + question.id"
+                  [value]="option.key"
+                  [(ngModel)]="question.correctOption"
+                >
+              </label>
+            </header>
+
+            <label class="editor-field">
+              <span>Answer {{ option.key }}</span>
+              <div class="input-with-tools">
+                <textarea rows="2" [(ngModel)]="option.text" [name]="'optionText' + question.id + option.key" placeholder="Enter answer content"></textarea>
+                <label class="upload-icon-button" [matTooltip]="'Upload answer image'">
+                  <input type="file" accept="image/*" (change)="onOptionImageChange(option, $event)">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                </label>
+              </div>
+            </label>
+
+            <div class="image-preview compact" *ngIf="option.imageDataUrl">
+              <img [src]="option.imageDataUrl" [alt]="option.imageName || 'Answer image'">
+              <div class="preview-meta">
+                <small>{{ option.imageName }}</small>
+                <button mat-button type="button" (click)="clearOptionImage(option)">
+                  Remove
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <div class="actions">
+    <button mat-stroked-button type="button" (click)="addQuestion()">Add Question</button>
+    <button mat-flat-button color="primary" type="button" (click)="saveExam()">
+      {{ editingExamId ? 'Update Exam' : 'Save Exam Draft' }}
+    </button>
+  </div>
+
+  <mat-card class="panel payload" *ngIf="savedPayload">
+    <mat-card-header>
+      <mat-card-title>Draft Payload Preview</mat-card-title>
+      <mat-card-subtitle>Current form snapshot to send API later</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <pre>{{ savedPayload }}</pre>
+    </mat-card-content>
+  </mat-card>
+</section>

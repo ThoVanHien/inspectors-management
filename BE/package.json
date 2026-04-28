@@ -1,0 +1,39 @@
+{
+  "name": "exam-certificate-be",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:create": "dotenv -e .env -- sh -c 'mysql -u \"$DB_USER\" --password=\"$DB_PASSWORD\" -h \"$DB_HOST\" -P \"$DB_PORT\" -e \"CREATE DATABASE IF NOT EXISTS \\`$DB_NAME\\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\"'",
+    "db:migrate": "dotenv -e .env -- sh -c 'mysql -u \"$DB_USER\" --password=\"$DB_PASSWORD\" -h \"$DB_HOST\" -P \"$DB_PORT\" \"$DB_NAME\" < database/migrations/001_init.sql'",
+    "db:seed": "dotenv -e .env -- sh -c 'mysql -u \"$DB_USER\" --password=\"$DB_PASSWORD\" -h \"$DB_HOST\" -P \"$DB_PORT\" \"$DB_NAME\" < database/seeds/001_roles.sql'",
+    "db:setup": "npm run db:create && npm run db:migrate && npm run db:seed"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.11.5",
+    "pdfkit": "^0.18.0",
+    "pdfmake": "^0.2.18",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^22.10.2",
+    "@types/pdfkit": "^0.17.6",
+    "dotenv-cli": "^7.4.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

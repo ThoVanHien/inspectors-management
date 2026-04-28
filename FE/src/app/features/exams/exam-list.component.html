@@ -1,0 +1,65 @@
+<section class="exam-list-page">
+  <header class="page-header">
+    <div>
+      <span class="eyebrow">Exam Management</span>
+      <h1>Exams</h1>
+      <p>Manage exam drafts with add, edit, and delete actions.</p>
+    </div>
+
+    <a mat-flat-button color="primary" routerLink="/exams/new">
+      <mat-icon>add</mat-icon>
+      Add Exam
+    </a>
+  </header>
+
+  <mat-card class="panel">
+    <mat-card-content>
+      <table mat-table [dataSource]="(exams$ | async) ?? []">
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef>Code</th>
+          <td mat-cell *matCellDef="let row">{{ row.exam.code || '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let row">{{ row.exam.name || '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="duration">
+          <th mat-header-cell *matHeaderCellDef>Duration</th>
+          <td mat-cell *matCellDef="let row">{{ row.exam.durationMinutes }} mins</td>
+        </ng-container>
+
+        <ng-container matColumnDef="questionCount">
+          <th mat-header-cell *matHeaderCellDef>Questions</th>
+          <td mat-cell *matCellDef="let row">{{ row.questions.length }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="updatedAt">
+          <th mat-header-cell *matHeaderCellDef>Updated</th>
+          <td mat-cell *matCellDef="let row">{{ formatDate(row.updatedAt) }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let row" class="actions-cell">
+            <a mat-icon-button [routerLink]="['/exams', row.id, 'edit']" matTooltip="Edit exam">
+              <mat-icon>edit</mat-icon>
+            </a>
+            <button mat-icon-button type="button" matTooltip="Delete exam" (click)="deleteExam(row)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+            No exams yet. Click Add Exam to create one.
+          </td>
+        </tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</section>

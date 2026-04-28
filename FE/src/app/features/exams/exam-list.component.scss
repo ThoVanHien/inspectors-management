@@ -1,0 +1,81 @@
+.exam-list-page {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.eyebrow {
+  display: inline-flex;
+  margin-bottom: var(--space-2);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+}
+
+h1 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xl);
+}
+
+p {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-secondary);
+}
+
+.panel mat-card-content {
+  padding: var(--space-5);
+}
+
+table {
+  border: 1px solid var(--color-border-default);
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  width: 100%;
+}
+
+th,
+td {
+  border-right: 1px solid var(--color-border-default);
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+th:last-child,
+td:last-child {
+  border-right: 0;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.actions-cell button:last-child mat-icon {
+  color: var(--color-danger);
+}
+
+.no-data-cell {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: var(--space-5) !important;
+}
+
+@media (max-width: 720px) {
+  .page-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
